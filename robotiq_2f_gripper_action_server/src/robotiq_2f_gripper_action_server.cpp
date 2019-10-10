@@ -109,7 +109,13 @@ void Robotiq2FGripperActionServer::goalCB()
   // Check to see if the gripper is in an active state where it can take goals
   if (current_reg_state_.gSTA != 0x3)
   {
-    ROS_WARN("%s could not accept goal because the gripper is not yet active", action_name_.c_str());
+    ROS_WARN("%s will activate the gripper before accept the goal", action_name_.c_str());
+    // Reset gripper
+    issueReset();
+    // Wait until reset finish
+    ros::Duration(1).sleep();
+    // Activate gripper
+    issueActivation();
     return;
   }
 
@@ -182,6 +188,21 @@ void Robotiq2FGripperActionServer::analysisCB(const GripperInput::ConstPtr& msg)
                                                 gripper_params_,
                                                 goal_reg_state_.rPR));
   }
+}
+
+void Robotiq2FGripperActionServer::issueReset()
+{
+  ROS_INFO("Restarting gripper for gripper action server: %s", action_name_.c_str());
+  GripperOutput out;
+  out.rACT = 0x0;
+  out.rGTO = 0x0;
+  out.rATR = 0x0;
+  out.rPR = 0x0;
+  out.rSP = 0x0;
+  out.rFR = 0x0;
+  // other params should be zero
+  goal_reg_state_ = out;
+  goal_pub_.publish(out);
 }
 
 void Robotiq2FGripperActionServer::issueActivation()
