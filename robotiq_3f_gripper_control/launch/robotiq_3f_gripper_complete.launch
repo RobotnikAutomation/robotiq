@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot_id" default="campero"/>
+  <arg name="prefix" default="$(arg robot_id)_"/>
+  <arg name="gripper_ip" default="192.168.0.212"/>
+
+  <group ns="$(arg robot_id)">  
+    <node name="robotiq_3f_gripper_tcp_node" pkg="robotiq_3f_gripper_control" type="Robotiq3FGripperTcpNode.py" output="screen" respawn="true" respawn_delay="10" args="$(arg gripper_ip)">
+        
+    </node>
+
+    <node name="robotiq_3f_gripper_joint_states" pkg="robotiq_3f_gripper_joint_state_publisher" type="robotiq_3f_gripper_joint_states" output="screen" respawn="true">
+        <param name="prefix" value="$(arg prefix)"/>  
+    </node>
+  </group>
+
+</launch>

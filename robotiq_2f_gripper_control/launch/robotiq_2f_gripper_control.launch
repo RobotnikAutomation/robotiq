@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot_id" default="campero"/>
+  <arg name="gripper_name" default="robotiq_2f_gripper" />
+
+ 
+  <group ns="$(arg robot_id)">
+    <!-- -->
+    <node name="$(arg gripper_name)_controller" pkg="robotiq_2f_gripper_control" type="Robotiq2FGripperSimpleController.py" output="screen">
+        <remap from="Robotiq2FGripperRobotOutput" to="$(arg gripper_name)/output"/>
+    </node>
+  </group>
+</launch>
+

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot_id" default="campero"/>
+  <arg name="launch_fake_joints" default="false"/>
+  <arg name="port" default="/dev/ttyUSB_GRIPPER"/>
+  <arg name="gripper_name" default="robotiq_2f_gripper" />
+  <arg name="min_gap" default="0" />
+  <arg name="max_gap" default="0.085" /> <!-- meters -->
+  <arg name="min_effort" default="30.0" />
+  <arg name="max_effort" default="100.0" />
+
+ 
+    <!-- -->
+    <node name="$(arg gripper_name)" pkg="robotiq_2f_gripper_control" type="Robotiq2FGripperRtuNode.py" args="$(arg port)" respawn="true" respawn_delay="10" output="screen">
+        <remap from="Robotiq2FGripperRobotInput" to="$(arg gripper_name)/input"/>
+        <remap from="Robotiq2FGripperRobotOutput" to="$(arg gripper_name)/output"/>
+    </node>
+    
+    <node name="$(arg gripper_name)_action_server" pkg="robotiq_2f_gripper_action_server" type="robotiq_2f_gripper_action_server_node" respawn="true" respawn_delay="10" output="screen">
+	<param name="gripper_name" type="str" value="$(arg gripper_name)" />
+	<param name="min_gap" type="double" value="$(arg min_gap)" />
+	<param name="max_gap" type="double" value="$(arg max_gap)" />
+	<param name="min_effort" type="double" value="$(arg min_effort)" />
+	<param name="max_effort" type="double" value="$(arg max_effort)" />
+
+	<remap from="input" to="$(arg gripper_name)/input" />
+	<remap from="output" to="$(arg gripper_name)/output" />
+    </node>
+    
+    <!-- Necessary to simulate fake position used in moveit when the gripper is connected to the arm-->
+    <node if="$(arg launch_fake_joints)" name="fake_joint_publisher" pkg="campero_description" type="fake_joint_publisher.py" output="screen">
+      <rosparam command="load" file="$(find campero_bringup)/config/2f_gripper_fake_joints.yaml"/>
+    </node>
+</launch>
+
